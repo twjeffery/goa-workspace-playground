@@ -38,7 +38,7 @@ interface ApplicationSection {
         <!-- Contextual Navigation for Client Record -->
         <goa-side-menu class="side-menu" [class.mobile-menu-open]="showMobileMenu">
           <goa-spacer vspacing="m"></goa-spacer>
-          <a href="/clients">Back to all cases</a>
+          <a href="/clients">Back to my clients</a>
           <goa-spacer vspacing="s"></goa-spacer>
           <goa-side-menu-heading>Detail view</goa-side-menu-heading>
           <a href="/clients/{{clientId}}">Action plan</a>
@@ -230,7 +230,7 @@ interface ApplicationSection {
     }
 
     goa-side-menu {
-      min-width: 180px;
+      min-width: 200px;
       background: white;
       border-right: 1px solid #ddd;
       height: 100vh;
@@ -402,8 +402,8 @@ interface ApplicationSection {
       goa-side-menu.side-menu {
         position: fixed;
         top: 0;
-        left: -260px; /* Hidden by default */
-        width: 260px;
+        left: -200px; /* Hidden by default */
+        width: 200px;
         height: 100vh;
         z-index: 1000;
         transition: left 0.3s ease;

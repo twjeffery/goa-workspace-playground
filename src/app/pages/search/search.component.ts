@@ -104,7 +104,8 @@ interface SearchResult {
 
             <!-- Data Table -->
             <div class="table-container">
-              <goa-table width="100%" (_sort)="handleSort($event)">
+              <div class="table-scroll-wrapper">
+                <goa-table width="100%" (_sort)="handleSort($event)">
               <thead>
                 <tr>
                   <th>
@@ -164,30 +165,33 @@ interface SearchResult {
                         [content]="result.type === 'client' ? 'Client' : result.type === 'application' ? 'Application' : 'Document'">
                       </goa-badge>
                     </td>
-                    <td>
-                      <goa-popover position="below" maxwidth="150px" [padded]="false">
+                    <td class="actions-cell">
+                      <div class="custom-dropdown" [class.open]="openDropdownId === result.id" [attr.data-result-id]="result.id">
                         <goa-icon-button 
                           icon="ellipsis-vertical" 
                           size="small"
-                          slot="target">
+                          (click)="toggleDropdown(result.id, $event)">
                         </goa-icon-button>
-                        <div class="action-menu">
-                          <button class="action-item" (click)="viewResult(result.id)">
-                            View
-                          </button>
-                          <button class="action-item" (click)="assignResult(result.id)">
-                            Assign
-                          </button>
-                          <button class="action-item" (click)="editResult(result.id)">
-                            Edit
-                          </button>
-                        </div>
-                      </goa-popover>
+                        @if (openDropdownId === result.id) {
+                          <div class="dropdown-menu">
+                            <button class="action-item" (click)="assignResult(result.id)">
+                              Assign
+                            </button>
+                            <button class="action-item" (click)="editResult(result.id)">
+                              Edit
+                            </button>
+                            <button class="action-item action-danger" (click)="deleteResult(result.id)">
+                              Delete
+                            </button>
+                          </div>
+                        }
+                      </div>
                     </td>
                   </tr>
                 }
               </tbody>
               </goa-table>
+              </div>
             </div>
 
             @if (filteredResults.length === 0 && searchResults.length > 0) {
@@ -206,6 +210,26 @@ interface SearchResult {
         </main>
       </div>
     </goa-one-column-layout>
+    
+    <!-- Delete Confirmation Modal -->
+    @if (showDeleteModal) {
+      <goa-modal 
+        heading="Delete search result" 
+        [open]="showDeleteModal"
+        (_close)="cancelDelete()">
+        <goa-text tag="p" mt="none" mb="none">
+          Are you sure you want to delete this search result? This action cannot be undone.
+        </goa-text>
+        <goa-button-group slot="actions" alignment="end">
+          <goa-button type="tertiary" (click)="cancelDelete()">
+            Cancel
+          </goa-button>
+          <goa-button type="primary" variant="destructive" (click)="confirmDelete()">
+            Delete
+          </goa-button>
+        </goa-button-group>
+      </goa-modal>
+    }
   `,
   styles: [`
     .workspace-container {
@@ -343,8 +367,18 @@ interface SearchResult {
       width: 100%;
       max-width: 100%;
       position: relative;
+    }
+
+    .table-scroll-wrapper {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
+      width: 100%;
+    }
+
+    /* Ensure icon buttons have lower z-index than dropdown */
+    .table-scroll-wrapper goa-icon-button,
+    goa-table goa-icon-button {
+      z-index: 1 !important;
     }
 
     goa-table {
@@ -400,6 +434,14 @@ interface SearchResult {
     .action-item:hover {
       background-color: #f8f9fa;
     }
+    
+    .action-item.action-danger {
+      color: #d73502;
+    }
+    
+    .action-item.action-danger:hover {
+      background-color: #fef2f0;
+    }
 
     /* Table column widths */
     goa-table th:nth-child(1) { /* Checkbox column */
@@ -430,6 +472,44 @@ interface SearchResult {
     goa-table th:nth-child(8) { /* Actions column */
       width: 60px;
     }
+    
+    /* Custom dropdown menu that renders outside table flow */
+    .actions-cell {
+      position: relative;
+    }
+    
+    .custom-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .dropdown-menu {
+      position: fixed;
+      z-index: 10000;
+      background: white;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      min-width: 120px;
+      max-width: 150px;
+      width: max-content;
+      /* Hide initially - JavaScript will position it */
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+    
+    .dropdown-menu.positioned {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .action-menu,
+    .dropdown-menu {
+      display: flex;
+      flex-direction: column;
+      min-width: 120px;
+    }
   `]
 })
 export class SearchComponent implements OnInit {
@@ -438,6 +518,13 @@ export class SearchComponent implements OnInit {
   // Mobile menu functionality
   showMobileMenu = false;
   isMobileView = false;
+  
+  // Custom dropdown menu functionality
+  openDropdownId: string | null = null;
+  
+  // Modal functionality
+  showDeleteModal = false;
+  resultToDelete: string | null = null;
 
   constructor(private router: Router) {}
   
@@ -720,6 +807,32 @@ export class SearchComponent implements OnInit {
   toggleMobileMenu(): void {
     this.showMobileMenu = !this.showMobileMenu;
   }
+  
+  toggleDropdown(resultId: string, event?: MouseEvent): void {
+    if (this.openDropdownId === resultId) {
+      this.openDropdownId = null;
+    } else {
+      this.openDropdownId = resultId;
+      // Position the dropdown after it's rendered
+      setTimeout(() => {
+        const dropdown = document.querySelector(`[data-result-id="${resultId}"] .dropdown-menu`) as HTMLElement;
+        if (dropdown && event) {
+          const rect = (event.target as HTMLElement).getBoundingClientRect();
+          dropdown.style.top = `${rect.bottom + 4}px`;
+          dropdown.style.left = `${rect.right - dropdown.offsetWidth}px`;
+          dropdown.classList.add('positioned');
+        }
+      });
+    }
+  }
+  
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-dropdown')) {
+      this.openDropdownId = null;
+    }
+  }
 
   ngOnInit(): void {
     this.checkScreenSize();
@@ -751,15 +864,38 @@ export class SearchComponent implements OnInit {
     if (result) {
       this.navigateToResult(result);
     }
+    this.openDropdownId = null; // Close dropdown
   }
 
   assignResult(resultId: string): void {
     console.log('Assign result:', resultId);
+    this.openDropdownId = null; // Close dropdown
     // Implement assign logic here
   }
 
   editResult(resultId: string): void {
     console.log('Edit result:', resultId);
+    this.openDropdownId = null; // Close dropdown
     // Implement edit logic here
+  }
+  
+  deleteResult(resultId: string): void {
+    this.resultToDelete = resultId;
+    this.showDeleteModal = true;
+    this.openDropdownId = null; // Close dropdown
+  }
+  
+  cancelDelete(): void {
+    this.showDeleteModal = false;
+    this.resultToDelete = null;
+  }
+  
+  confirmDelete(): void {
+    if (this.resultToDelete) {
+      this.searchResults = this.searchResults.filter(result => result.id !== this.resultToDelete);
+      console.log('Deleted result:', this.resultToDelete);
+    }
+    this.showDeleteModal = false;
+    this.resultToDelete = null;
   }
 }

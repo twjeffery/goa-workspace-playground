@@ -115,7 +115,8 @@ interface Client {
 
             <!-- Data Table -->
             <div class="table-container">
-              <goa-table width="100%" (_sort)="handleSort($event)">
+              <div class="table-scroll-wrapper">
+                <goa-table width="100%" (_sort)="handleSort($event)">
               <thead>
                 <tr>
                   <th>
@@ -179,30 +180,33 @@ interface Client {
                         [content]="client.priority === 'high' ? 'High' : client.priority === 'medium' ? 'Medium' : 'Low'">
                       </goa-badge>
                     </td>
-                    <td>
-                      <goa-popover position="below" maxwidth="150px" [padded]="false">
+                    <td class="actions-cell">
+                      <div class="custom-dropdown" [class.open]="openDropdownId === client.id" [attr.data-client-id]="client.id">
                         <goa-icon-button 
                           icon="ellipsis-vertical" 
                           size="small"
-                          slot="target">
+                          (click)="toggleDropdown(client.id, $event)">
                         </goa-icon-button>
-                        <div class="action-menu">
-                          <button class="action-item" (click)="assignClient(client.id)">
-                            Assign
-                          </button>
-                          <button class="action-item" (click)="editClient(client.id)">
-                            Edit
-                          </button>
-                          <button class="action-item action-danger" (click)="deleteClient(client.id)">
-                            Delete
-                          </button>
-                        </div>
-                      </goa-popover>
+                        @if (openDropdownId === client.id) {
+                          <div class="dropdown-menu">
+                            <button class="action-item" (click)="assignClient(client.id)">
+                              Unassign
+                            </button>
+                            <button class="action-item" (click)="editClient(client.id)">
+                              Edit
+                            </button>
+                            <button class="action-item action-danger" (click)="deleteClient(client.id)">
+                              Delete
+                            </button>
+                          </div>
+                        }
+                      </div>
                     </td>
                   </tr>
                 }
               </tbody>
               </goa-table>
+              </div>
             </div>
 
             @if (filteredClients.length === 0 && clients.length > 0) {
@@ -276,30 +280,23 @@ interface Client {
         </goa-form-item>
 
         <goa-form-item label="Due Date" mb="l">
-          <goa-input 
-            type="text"
+          <goa-date-picker 
+            name="dueDate"
+            type="calendar"
             [value]="editForm.dueDate"
             (_change)="updateEditForm('dueDate', $event)">
-          </goa-input>
+          </goa-date-picker>
         </goa-form-item>
 
-        <goa-form-item label="Status" mb="l">
+        <goa-form-item label="Status" mb="xl">
           <goa-dropdown 
             [value]="editForm.status"
             (_change)="updateEditForm('status', $event)">
-            <goa-dropdown-item value="information" label="Information"></goa-dropdown-item>
-            <goa-dropdown-item value="success" label="Success"></goa-dropdown-item>
-            <goa-dropdown-item value="important" label="Important"></goa-dropdown-item>
-            <goa-dropdown-item value="emergency" label="Emergency"></goa-dropdown-item>
+            <goa-dropdown-item value="information" label="In progress"></goa-dropdown-item>
+            <goa-dropdown-item value="success" label="Completed"></goa-dropdown-item>
+            <goa-dropdown-item value="important" label="Review needed"></goa-dropdown-item>
+            <goa-dropdown-item value="emergency" label="Urgent"></goa-dropdown-item>
           </goa-dropdown>
-        </goa-form-item>
-
-        <goa-form-item label="Status Text" mb="xl">
-          <goa-input 
-            type="text"
-            [value]="editForm.statusText"
-            (_change)="updateEditForm('statusText', $event)">
-          </goa-input>
         </goa-form-item>
 
         <goa-button-group alignment="end">
@@ -489,16 +486,53 @@ interface Client {
       width: 100%;
       max-width: 100%;
       position: relative;
+    }
+
+    .table-scroll-wrapper {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
+      width: 100%;
     }
 
     /* Table scrolls at all viewport sizes when needed */
+    
+    /* Custom dropdown menu that renders outside table flow */
+    .actions-cell {
+      position: relative;
+    }
+    
+    .custom-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .dropdown-menu {
+      position: fixed;
+      z-index: 10000;
+      background: white;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      min-width: 120px;
+      max-width: 150px;
+      width: max-content;
+      /* Hide initially - JavaScript will position it */
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+    
+    .dropdown-menu.positioned {
+      opacity: 1;
+      pointer-events: auto;
+    }
 
     goa-table {
       background: white;
       border-radius: 8px;
       min-width: 600px; /* Minimum width to ensure columns don't get too squished */
+      /* Contain layout to prevent popover from affecting table size */
+      contain: layout !important;
     }
 
     /* Zebra striping for better scannability - start on first row */
@@ -524,7 +558,8 @@ interface Client {
       margin-top: 8px;
     }
 
-    .action-menu {
+    .action-menu,
+    .dropdown-menu {
       display: flex;
       flex-direction: column;
       min-width: 120px;
@@ -623,6 +658,9 @@ export class ClientsComponent implements OnInit {
   // Drawer functionality
   showEditDrawer = false;
   clientToEdit: Client | null = null;
+  
+  // Custom dropdown menu functionality
+  openDropdownId: string | null = null;
   editForm = {
     firstName: '',
     lastName: '',
@@ -779,6 +817,7 @@ export class ClientsComponent implements OnInit {
 
   assignClient(clientId: string): void {
     console.log('Assign client:', clientId);
+    this.openDropdownId = null; // Close dropdown
     // Implement assign logic here
   }
 
@@ -798,12 +837,24 @@ export class ClientsComponent implements OnInit {
         jurisdiction: client.jurisdiction
       };
       this.showEditDrawer = true;
+      this.openDropdownId = null; // Close dropdown
     }
   }
 
   updateEditForm(field: string, event: any): void {
     const value = event.detail?.value || event.target?.value || '';
     (this.editForm as any)[field] = value;
+    
+    // Auto-update status text when status changes
+    if (field === 'status') {
+      const statusTextMap: {[key: string]: string} = {
+        'information': 'In progress',
+        'success': 'Completed',
+        'important': 'Review needed',
+        'emergency': 'Urgent'
+      };
+      this.editForm.statusText = statusTextMap[value] || '';
+    }
   }
 
   cancelEdit(): void {
@@ -844,6 +895,7 @@ export class ClientsComponent implements OnInit {
   deleteClient(clientId: string): void {
     this.clientToDelete = clientId;
     this.showDeleteModal = true;
+    this.openDropdownId = null; // Close dropdown
   }
 
   cancelDelete(): void {
@@ -943,6 +995,32 @@ export class ClientsComponent implements OnInit {
 
   toggleMobileMenu(): void {
     this.showMobileMenu = !this.showMobileMenu;
+  }
+  
+  toggleDropdown(clientId: string, event?: MouseEvent): void {
+    if (this.openDropdownId === clientId) {
+      this.openDropdownId = null;
+    } else {
+      this.openDropdownId = clientId;
+      // Position the dropdown after it's rendered
+      setTimeout(() => {
+        const dropdown = document.querySelector(`[data-client-id="${clientId}"] .dropdown-menu`) as HTMLElement;
+        if (dropdown && event) {
+          const rect = (event.target as HTMLElement).getBoundingClientRect();
+          dropdown.style.top = `${rect.bottom + 4}px`;
+          dropdown.style.left = `${rect.right - dropdown.offsetWidth}px`;
+          dropdown.classList.add('positioned');
+        }
+      });
+    }
+  }
+  
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-dropdown')) {
+      this.openDropdownId = null;
+    }
   }
 
   ngOnInit(): void {

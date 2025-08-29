@@ -5,7 +5,7 @@ import { ClientDetailComponent } from './pages/client-detail/client-detail.compo
 import { SearchComponent } from './pages/search/search.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: '', redirectTo: '/search', pathMatch: 'full' },
   { path: 'search', component: SearchComponent },
   { path: 'clients', component: ClientsComponent },
   { path: 'clients/:id', component: ClientDetailComponent },

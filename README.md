@@ -2,6 +2,10 @@
 
 A sandbox Angular application for building and testing with GoA Design System components. This is a clean starting point for creating demos, prototypes, and exploring new patterns with the Government of Alberta Design System.
 
+## Live Demo
+
+**[View Live Demo](https://main--goa-workspace-playground.netlify.app/)**
+
 ## Purpose
 
 This workspace serves as:

@@ -31,7 +31,7 @@ interface SearchResult {
           <goa-spacer vspacing="m"></goa-spacer>
           <a href="/search">Search</a>
           <a href="/clients">My clients</a>
-          <a href="/workflow">Workflow</a>
+          <a href="/workflow">Claims</a>
           <goa-spacer vspacing="m"></goa-spacer>
         </goa-side-menu>
 

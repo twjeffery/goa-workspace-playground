@@ -31,7 +31,7 @@ interface SearchResult {
           <goa-spacer vspacing="m"></goa-spacer>
           <a href="/search">Search</a>
           <a href="/clients">My clients</a>
-          <a href="/workflow">Claims</a>
+          <a href="/claims">Claims</a>
           <goa-spacer vspacing="m"></goa-spacer>
         </goa-side-menu>
 
@@ -289,7 +289,7 @@ interface SearchResult {
       }
       
       goa-table {
-        min-width: 900px; /* Slightly wider due to Type column */
+        min-width: 600px; /* Slightly wider due to Type column */
       }
     }
 
@@ -320,7 +320,7 @@ interface SearchResult {
 
       .mobile-menu-button {
         display: block !important;
-        margin-top: 16px;
+        margin-top: 8px;
       }
 
       .workspace-container {
@@ -343,19 +343,14 @@ interface SearchResult {
       width: 100%;
       max-width: 100%;
       position: relative;
-    }
-
-    @media (max-width: 900px) {
-      .table-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     goa-table {
       background: white;
       border-radius: 8px;
-      min-width: 900px;
+      min-width: 600px;
     }
 
     /* Zebra striping for better scannability */

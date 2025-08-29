@@ -33,7 +33,7 @@ interface Client {
           <goa-spacer vspacing="m"></goa-spacer>
           <a href="/search">Search</a>
           <a href="/clients">My clients</a>
-          <a href="/workflow">Claims</a>
+          <a href="/claims">Claims</a>
           <goa-spacer vspacing="m"></goa-spacer>
         </goa-side-menu>
 
@@ -343,6 +343,7 @@ interface Client {
 
     .mobile-menu-button {
       display: none;
+      margin-top: 8px;
     }
 
     .header-actions {
@@ -435,7 +436,7 @@ interface Client {
       }
       
       goa-table {
-        min-width: 800px;
+        min-width: 600px;
       }
     }
 
@@ -488,20 +489,16 @@ interface Client {
       width: 100%;
       max-width: 100%;
       position: relative;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
-    /* Only apply overflow on mobile when table needs to scroll */
-    @media (max-width: 900px) {
-      .table-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-    }
+    /* Table scrolls at all viewport sizes when needed */
 
     goa-table {
       background: white;
       border-radius: 8px;
-      min-width: 800px; /* Minimum width to ensure columns don't get too squished */
+      min-width: 600px; /* Minimum width to ensure columns don't get too squished */
     }
 
     /* Zebra striping for better scannability - start on first row */

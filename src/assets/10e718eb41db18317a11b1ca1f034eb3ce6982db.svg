@@ -1,0 +1,6 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Focus outline">
+<rect x="1.5" y="1.5" width="27" height="27" rx="13.5" stroke="var(--stroke-0, #FEBA35)" stroke-width="3"/>
+<circle id="Radio input" cx="15" cy="15" r="11.5" fill="var(--fill-0, white)" stroke="var(--stroke-0, #666666)"/>
+</g>
+</svg>

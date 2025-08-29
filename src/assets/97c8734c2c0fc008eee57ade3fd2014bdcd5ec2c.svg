@@ -1,0 +1,6 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Radio input">
+<rect x="0.5" y="0.5" width="25" height="25" rx="12.5" stroke="var(--stroke-0, #004F84)"/>
+<circle id="Radio input_2" cx="13" cy="13" r="8.5" fill="var(--fill-0, white)" stroke="var(--stroke-0, #004F84)" stroke-width="7"/>
+</g>
+</svg>

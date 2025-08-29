@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Check" clip-path="url(#clip0_130_548638)">
+<path id="check" fill-rule="evenodd" clip-rule="evenodd" d="M4.64066 11.0012L0.186135 6.2174C-0.0620454 5.9542 -0.0620454 5.5258 0.186135 5.2598L1.08595 4.3036C1.33413 4.0404 1.73758 4.0404 1.98576 4.3036L5.0912 7.6524L12.0135 0.1974C12.2617 -0.0657999 12.6652 -0.0657999 12.9134 0.1974L13.8132 1.155C14.0613 1.4182 14.0613 1.848 13.8132 2.1098L5.54048 11.0012C5.29229 11.2644 4.88884 11.2644 4.64066 11.0012Z" fill="var(--fill-0, white)"/>
+</g>
+<defs>
+<clipPath id="clip0_130_548638">
+<rect width="13.9993" height="12" fill="white"/>
+</clipPath>
+</defs>
+</svg>
